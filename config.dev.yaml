@@ -1,0 +1,20 @@
+twilio:
+  account_sid: ""
+  auth_token: ""
+  phone_number: ""
+
+llm:
+  provider: "gemini"
+  api_key: ""
+  model: "gemini-pro"
+  max_tokens: 1024
+  temperature: 0.7
+
+mongodb:
+  connection_string: ""
+  database: "slavoj_dev"
+
+processing:
+  max_concurrent_books: 5
+  response_timeout: 30
+  aggregation_timeout: 30

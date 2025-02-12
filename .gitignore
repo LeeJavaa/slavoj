@@ -6,3 +6,6 @@ venv/
 
 # POETRY
 poetry.lock
+
+# IDE
+.idea/
