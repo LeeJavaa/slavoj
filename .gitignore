@@ -2,4 +2,7 @@
 venv/
 
 # ENVIRONMENT VARS
-.env.example
+.env
+
+# POETRY
+poetry.lock
