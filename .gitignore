@@ -9,3 +9,6 @@ poetry.lock
 
 # IDE
 .idea/
+
+# PACKAGE STUFF
+src/slavoj.egg-info/
