@@ -1,18 +1,18 @@
 twilio:
   account_sid: ""
   auth_token: ""
-  phone_number: ""
+  phone_number: "+14155238886"
 
 llm:
   provider: "gemini"
   api_key: ""
-  model: "gemini-pro"
+  model: "gemini-2.0-flash"
   max_tokens: 1024
   temperature: 0.7
 
 mongodb:
   connection_string: ""
-  database: "slavoj_dev"
+  database: "slavoj-dev"
 
 processing:
   max_concurrent_books: 5
