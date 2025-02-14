@@ -8,7 +8,7 @@ class MessagingInterface(ABC):
     """Interface for messaging service implementations"""
 
     @abstractmethod
-    async def send_message(self, message: Message) -> bool:
+    def send_message(self, message: Message) -> bool:
         """Send a message through the messaging service"""
         pass
 
@@ -28,7 +28,7 @@ class LLMInterface(ABC):
 
     @abstractmethod
     async def generate_response(
-        self, book_content: str, conversation_context: ConversationContext, query: str
+        self, book_title: str, book_content: str, conversation_context: ConversationContext, query: str
     ) -> GeneratedResponse:
         """Generate a response based on book content and conversation context"""
         pass
@@ -57,6 +57,11 @@ class DatabaseInterface(ABC):
     @abstractmethod
     async def get_author(self, author_id: str) -> Optional[Author]:
         """Retrieve author information"""
+        pass
+
+    @abstractmethod
+    async def get_author_by_whatsapp(self, whatsapp_number: str) -> Optional[Author]:
+        """Retrieve author information by whatsapp number"""
         pass
 
     @abstractmethod
@@ -109,7 +114,7 @@ class ConversationManagerInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_or_create_context(self, conversation_id: str) -> ConversationContext:
+    async def get_or_create_context(self, conversation_id: str, message: Message) -> ConversationContext:
         """Get existing conversation context or create new one"""
         pass
 

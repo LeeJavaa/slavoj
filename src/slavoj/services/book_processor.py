@@ -54,6 +54,7 @@ class BookProcessor(BookProcessorInterface):
     ) -> GeneratedResponse:
         try:
             response = await self.llm.generate_response(
+                book_title=book.title,
                 book_content=book.content,
                 conversation_context=conversation_context,
                 query=query,

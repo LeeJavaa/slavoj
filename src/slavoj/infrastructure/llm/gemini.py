@@ -24,17 +24,17 @@ class GeminiLLM(LLMInterface):
         self.logger = LoggerFactory.create_logger("GeminiLLM")
 
     async def generate_response(
-        self, book_content: str, conversation_context: ConversationContext, query: str
+        self, book_title: str, book_content: str, conversation_context: ConversationContext, query: str
     ) -> GeneratedResponse:
         try:
             # Construct prompt with book content and conversation history
             prompt = self._construct_prompt(book_content, conversation_context, query)
 
             # Generate response
-            response = await self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt)
 
             return GeneratedResponse(
-                book_title=book_content,
+                book_title=book_title,
                 content=response.text,
                 confidence_score=0.0,
                 # Gemini doesn't provide confidence scores
@@ -52,7 +52,7 @@ class GeminiLLM(LLMInterface):
             prompt = self._construct_aggregation_prompt(responses, query)
 
             # Generate aggregated response
-            response = await self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt)
 
             return response.text
         except Exception as e:
@@ -105,12 +105,20 @@ class GeminiLLM(LLMInterface):
         Each response is generated based on a different book by the author.
 
         {formatted_responses}
+        
+        You are the author that wrote these books and a curious mind is having a 
+        conversation with you over text. You must synthesize these responses and
+        respond to this person over text.
 
         Please synthesize these responses into a single, coherent response that:
-        1. Captures the key ideas from all relevant books
+        1. Looks at the key ideas from all books and picks the most relevant one, or summarises them. 
         2. Maintains the author's voice and style
         3. Presents a unified perspective
-        4. Explicitly mentions relevant books when appropriate
+        4. Mentions the relevant books only when absolutely necessary. 
+        5. Is not longer than 1000 characters!
+        6. Does not have mutliple paragraphs with gaps. Is only a single paragraph.
+        7. Medium response length (400-800) characters preferred.
+        8. Do not detail the actions or motions you are performing, this is a text message.
 
         Synthesized response:
         """
