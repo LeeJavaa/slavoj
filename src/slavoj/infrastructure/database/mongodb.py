@@ -1,11 +1,12 @@
-from motor.motor_asyncio import AsyncIOMotorClient
-from typing import List, Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from slavoj.domain.interfaces import DatabaseInterface
-from slavoj.domain.models import Book, Author, ConversationContext, Message
+from motor.motor_asyncio import AsyncIOMotorClient
+
 from slavoj.core.exceptions import DatabaseError
 from slavoj.core.logging import LoggerFactory
+from slavoj.domain.interfaces import DatabaseInterface
+from slavoj.domain.models import Author, Book, ConversationContext, Message
 
 
 class MongoDB(DatabaseInterface):
@@ -31,49 +32,46 @@ class MongoDB(DatabaseInterface):
 
             # Get books for this author
             books = await self.get_books_by_author(author_id)
-            author_doc['books'] = books
+            author_doc["books"] = books
 
             return Author(**author_doc)
         except Exception as e:
             self.logger.error(f"Failed to retrieve author: {e}")
             raise DatabaseError(f"Failed to retrieve author: {e}")
 
-    async def get_conversation_context(self, conversation_id: str) -> Optional[
-        ConversationContext]:
+    async def get_conversation_context(
+        self, conversation_id: str
+    ) -> Optional[ConversationContext]:
         try:
-            context = await self.db.conversations.find_one(
-                {"id": conversation_id})
+            context = await self.db.conversations.find_one({"id": conversation_id})
             if not context:
                 return None
 
             # Convert stored dates back to datetime objects
-            context['created_at'] = datetime.fromisoformat(
-                context['created_at'])
-            context['last_updated'] = datetime.fromisoformat(
-                context['last_updated'])
+            context["created_at"] = datetime.fromisoformat(context["created_at"])
+            context["last_updated"] = datetime.fromisoformat(context["last_updated"])
 
             # Convert message dictionaries to Message objects
-            context['messages'] = [Message(**msg) for msg in
-                                   context['messages']]
+            context["messages"] = [Message(**msg) for msg in context["messages"]]
 
             return ConversationContext(**context)
         except Exception as e:
             self.logger.error(f"Failed to retrieve conversation: {e}")
             raise DatabaseError(f"Failed to retrieve conversation: {e}")
 
-    async def store_conversation(self,
-                                 conversation: ConversationContext) -> bool:
+    async def store_conversation(self, conversation: ConversationContext) -> bool:
         try:
             # Convert datetime objects to ISO format strings for storage
             conversation_dict = {
                 "id": conversation.id,
                 "user_id": conversation.user_id,
                 "author_id": conversation.author_id,
-                "messages": [self._message_to_dict(msg) for msg in
-                             conversation.messages],
+                "messages": [
+                    self._message_to_dict(msg) for msg in conversation.messages
+                ],
                 "created_at": conversation.created_at.isoformat(),
                 "last_updated": conversation.last_updated.isoformat(),
-                "metadata": conversation.metadata
+                "metadata": conversation.metadata,
             }
 
             result = await self.db.conversations.insert_one(conversation_dict)
@@ -83,26 +81,24 @@ class MongoDB(DatabaseInterface):
             self.logger.error(f"Failed to store conversation: {e}")
             raise DatabaseError(f"Failed to store conversation: {e}")
 
-    async def update_conversation(self,
-                                  conversation: ConversationContext) -> bool:
+    async def update_conversation(self, conversation: ConversationContext) -> bool:
         try:
             conversation_dict = {
                 "user_id": conversation.user_id,
                 "author_id": conversation.author_id,
-                "messages": [self._message_to_dict(msg) for msg in
-                             conversation.messages],
+                "messages": [
+                    self._message_to_dict(msg) for msg in conversation.messages
+                ],
                 "last_updated": conversation.last_updated.isoformat(),
-                "metadata": conversation.metadata
+                "metadata": conversation.metadata,
             }
 
             result = await self.db.conversations.update_one(
-                {"id": conversation.id},
-                {"$set": conversation_dict}
+                {"id": conversation.id}, {"$set": conversation_dict}
             )
 
             if result.modified_count == 0:
-                raise DatabaseError(
-                    f"No conversation found with id: {conversation.id}")
+                raise DatabaseError(f"No conversation found with id: {conversation.id}")
 
             self.logger.info(f"Updated conversation: {conversation.id}")
             return True
@@ -128,5 +124,5 @@ class MongoDB(DatabaseInterface):
             "sender_id": message.sender_id,
             "conversation_id": message.conversation_id,
             "message_type": message.message_type.value,
-            "metadata": message.metadata
+            "metadata": message.metadata,
         }

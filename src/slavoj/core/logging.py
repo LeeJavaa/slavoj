@@ -1,9 +1,9 @@
+import json
 import logging
 import sys
-from typing import Optional
-from logging.handlers import RotatingFileHandler
-import json
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
+from typing import Optional
 
 
 class JSONFormatter(logging.Formatter):
@@ -11,20 +11,20 @@ class JSONFormatter(logging.Formatter):
 
     def format(self, record):
         log_record = {
-            'timestamp': datetime.utcfromtimestamp(record.created).isoformat(),
-            'level': record.levelname,
-            'logger': record.name,
-            'message': record.getMessage(),
-            'module': record.module,
-            'function': record.funcName,
-            'line': record.lineno
+            "timestamp": datetime.utcfromtimestamp(record.created).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
         }
 
-        if hasattr(record, 'props'):
+        if hasattr(record, "props"):
             log_record.update(record.props)
 
         if record.exc_info:
-            log_record['exception'] = self.formatException(record.exc_info)
+            log_record["exception"] = self.formatException(record.exc_info)
 
         return json.dumps(log_record)
 
@@ -34,12 +34,12 @@ class LoggerFactory:
 
     @staticmethod
     def create_logger(
-            name: str,
-            level: str = 'INFO',
-            log_file: Optional[str] = None,
-            max_bytes: int = 10485760,  # 10MB
-            backup_count: int = 5,
-            json_format: bool = True
+        name: str,
+        level: str = "INFO",
+        log_file: Optional[str] = None,
+        max_bytes: int = 10485760,  # 10MB
+        backup_count: int = 5,
+        json_format: bool = True,
     ) -> logging.Logger:
         """
         Create a configured logger instance.
@@ -65,7 +65,7 @@ class LoggerFactory:
             formatter = JSONFormatter()
         else:
             formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
 
         # Console handler
@@ -76,9 +76,7 @@ class LoggerFactory:
         # File handler (if log_file specified)
         if log_file:
             file_handler = RotatingFileHandler(
-                log_file,
-                maxBytes=max_bytes,
-                backupCount=backup_count
+                log_file, maxBytes=max_bytes, backupCount=backup_count
             )
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)

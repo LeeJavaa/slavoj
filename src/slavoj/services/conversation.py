@@ -1,22 +1,24 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
 
-from slavoj.domain.interfaces import (
-    ConversationManagerInterface,
-    DatabaseInterface,
-    BookProcessorInterface,
-    LLMInterface
-)
-from slavoj.domain.models import Message, ConversationContext, MessageType
 from slavoj.core.exceptions import ConversationError
 from slavoj.core.logging import LoggerFactory
+from slavoj.domain.interfaces import (
+    BookProcessorInterface,
+    ConversationManagerInterface,
+    DatabaseInterface,
+    LLMInterface,
+)
+from slavoj.domain.models import ConversationContext, Message, MessageType
 
 
 class ConversationManager(ConversationManagerInterface):
-    def __init__(self,
-                 db: DatabaseInterface,
-                 book_processor: BookProcessorInterface,
-                 llm: LLMInterface):
+    def __init__(
+        self,
+        db: DatabaseInterface,
+        book_processor: BookProcessorInterface,
+        llm: LLMInterface,
+    ):
         self.db = db
         self.book_processor = book_processor
         self.llm = llm
@@ -31,7 +33,7 @@ class ConversationManager(ConversationManagerInterface):
             responses = await self.book_processor.process_query(
                 query=message.content,
                 author=context.author_id,
-                conversation_context=context
+                conversation_context=context,
             )
 
             if not responses:
@@ -39,8 +41,7 @@ class ConversationManager(ConversationManagerInterface):
 
             # Aggregate responses
             final_response = await self.llm.aggregate_responses(
-                responses=responses,
-                query=message.content
+                responses=responses, query=message.content
             )
 
             # Update conversation context
@@ -52,8 +53,7 @@ class ConversationManager(ConversationManagerInterface):
             self.logger.error(f"Message processing failed: {e}")
             raise ConversationError(f"Failed to process message: {e}")
 
-    async def get_or_create_context(self,
-                                    conversation_id: str) -> ConversationContext:
+    async def get_or_create_context(self, conversation_id: str) -> ConversationContext:
         try:
             # Try to get existing context
             context = await self.db.get_conversation_context(conversation_id)
@@ -67,7 +67,7 @@ class ConversationManager(ConversationManagerInterface):
                 author_id="",  # Will be set from configuration
                 messages=[],
                 created_at=datetime.utcnow(),
-                last_updated=datetime.utcnow()
+                last_updated=datetime.utcnow(),
             )
 
             await self.db.store_conversation(new_context)
@@ -75,13 +75,11 @@ class ConversationManager(ConversationManagerInterface):
 
         except Exception as e:
             self.logger.error(f"Failed to get/create conversation context: {e}")
-            raise ConversationError(
-                f"Failed to get/create conversation context: {e}")
+            raise ConversationError(f"Failed to get/create conversation context: {e}")
 
-    async def update_context(self,
-                             context: ConversationContext,
-                             message: Message,
-                             response: str) -> None:
+    async def update_context(
+        self, context: ConversationContext, message: Message, response: str
+    ) -> None:
         try:
             # Add user message to context
             context.messages.append(message)
@@ -92,7 +90,7 @@ class ConversationManager(ConversationManagerInterface):
                 timestamp=datetime.utcnow(),
                 sender_id=context.author_id,
                 conversation_id=context.id,
-                message_type=MessageType.AUTHOR
+                message_type=MessageType.AUTHOR,
             )
             context.messages.append(response_message)
 
@@ -110,5 +108,4 @@ class ConversationManager(ConversationManagerInterface):
 
         except Exception as e:
             self.logger.error(f"Failed to update conversation context: {e}")
-            raise ConversationError(
-                f"Failed to update conversation context: {e}")
+            raise ConversationError(f"Failed to update conversation context: {e}")

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from .models import Message, Book, ConversationContext, GeneratedResponse, \
-    Author
+
+from .models import Author, Book, ConversationContext, GeneratedResponse, Message
 
 
 class MessagingInterface(ABC):
@@ -18,8 +18,7 @@ class MessagingInterface(ABC):
         pass
 
     @abstractmethod
-    async def handle_delivery_status(self, message_id: str,
-                                     status: str) -> None:
+    async def handle_delivery_status(self, message_id: str, status: str) -> None:
         """Handle message delivery status updates"""
         pass
 
@@ -28,17 +27,16 @@ class LLMInterface(ABC):
     """Interface for LLM service implementations"""
 
     @abstractmethod
-    async def generate_response(self,
-                                book_content: str,
-                                conversation_context: ConversationContext,
-                                query: str) -> GeneratedResponse:
+    async def generate_response(
+        self, book_content: str, conversation_context: ConversationContext, query: str
+    ) -> GeneratedResponse:
         """Generate a response based on book content and conversation context"""
         pass
 
     @abstractmethod
-    async def aggregate_responses(self,
-                                  responses: List[GeneratedResponse],
-                                  query: str) -> str:
+    async def aggregate_responses(
+        self, responses: List[GeneratedResponse], query: str
+    ) -> str:
         """Aggregate multiple book-specific responses into a single response"""
         pass
 
@@ -62,20 +60,19 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_conversation_context(self, conversation_id: str) -> Optional[
-        ConversationContext]:
+    async def get_conversation_context(
+        self, conversation_id: str
+    ) -> Optional[ConversationContext]:
         """Retrieve conversation context"""
         pass
 
     @abstractmethod
-    async def store_conversation(self,
-                                 conversation: ConversationContext) -> bool:
+    async def store_conversation(self, conversation: ConversationContext) -> bool:
         """Store conversation context"""
         pass
 
     @abstractmethod
-    async def update_conversation(self,
-                                  conversation: ConversationContext) -> bool:
+    async def update_conversation(self, conversation: ConversationContext) -> bool:
         """Update existing conversation context"""
         pass
 
@@ -89,19 +86,16 @@ class BookProcessorInterface(ABC):
     """Interface for book processing operations"""
 
     @abstractmethod
-    async def process_query(self,
-                            query: str,
-                            author: str,
-                            conversation_context: ConversationContext) -> List[
-        GeneratedResponse]:
+    async def process_query(
+        self, query: str, author: str, conversation_context: ConversationContext
+    ) -> List[GeneratedResponse]:
         """Process a query against all books by an author"""
         pass
 
     @abstractmethod
-    async def process_single_book(self,
-                                  book: Book,
-                                  conversation_context: ConversationContext,
-                                  query: str) -> GeneratedResponse:
+    async def process_single_book(
+        self, book: Book, conversation_context: ConversationContext, query: str
+    ) -> GeneratedResponse:
         """Process a query against a single book"""
         pass
 
@@ -115,15 +109,13 @@ class ConversationManagerInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_or_create_context(self,
-                                    conversation_id: str) -> ConversationContext:
+    async def get_or_create_context(self, conversation_id: str) -> ConversationContext:
         """Get existing conversation context or create new one"""
         pass
 
     @abstractmethod
-    async def update_context(self,
-                             context: ConversationContext,
-                             message: Message,
-                             response: str) -> None:
+    async def update_context(
+        self, context: ConversationContext, message: Message, response: str
+    ) -> None:
         """Update conversation context with new message and response"""
         pass

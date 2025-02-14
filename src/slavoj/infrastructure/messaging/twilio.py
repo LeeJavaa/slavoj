@@ -1,12 +1,14 @@
-from twilio.rest import Client
-from twilio.base.exceptions import TwilioRestException
 from datetime import datetime
 
-from slavoj.domain.interfaces import MessagingInterface
-from slavoj.domain.models import Message, MessageType
+from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
+
 from slavoj.core.config import TwilioConfig
 from slavoj.core.exceptions import MessageDeliveryError
 from slavoj.core.logging import LoggerFactory
+from slavoj.domain.interfaces import MessagingInterface
+from slavoj.domain.models import Message, MessageType
+
 
 class TwilioAdapter(MessagingInterface):
     def __init__(self, config: TwilioConfig):
@@ -19,7 +21,7 @@ class TwilioAdapter(MessagingInterface):
             response = await self.client.messages.create(
                 body=message.content,
                 from_=f"whatsapp:{self.config.phone_number}",
-                to=f"whatsapp:{message.sender_id}"
+                to=f"whatsapp:{message.sender_id}",
             )
             self.logger.info(f"Message sent successfully: {response.sid}")
             return True
@@ -32,9 +34,7 @@ class TwilioAdapter(MessagingInterface):
         Note: This method is typically not used directly.
         Messages are received via webhook endpoints.
         """
-        raise NotImplementedError(
-            "Messages should be received via webhook endpoints"
-        )
+        raise NotImplementedError("Messages should be received via webhook endpoints")
 
     async def handle_delivery_status(self, message_id: str, status: str) -> None:
         try:
