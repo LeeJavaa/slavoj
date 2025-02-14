@@ -16,12 +16,12 @@ class TwilioAdapter(MessagingInterface):
         self.client = Client(config.account_sid, config.auth_token)
         self.logger = LoggerFactory.create_logger("TwilioAdapter")
 
-    async def send_message(self, message: Message) -> bool:
+    def send_message(self, message: Message) -> bool:
         try:
-            response = await self.client.messages.create(
+            response = self.client.messages.create(
                 body=message.content,
-                from_=f"whatsapp:{self.config.phone_number}",
-                to=f"whatsapp:{message.sender_id}",
+                from_=f"whatsapp:{message.sender_id}",
+                to=f"whatsapp:{message.recipient_id}",
             )
             self.logger.info(f"Message sent successfully: {response.sid}")
             return True

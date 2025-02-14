@@ -27,7 +27,7 @@ class ConversationManager(ConversationManagerInterface):
     async def process_message(self, message: Message) -> str:
         try:
             # Get or create conversation context
-            context = await self.get_or_create_context(message.conversation_id)
+            context = await self.get_or_create_context(message.conversation_id, message)
 
             # Process query against all books
             responses = await self.book_processor.process_query(
@@ -53,21 +53,31 @@ class ConversationManager(ConversationManagerInterface):
             self.logger.error(f"Message processing failed: {e}")
             raise ConversationError(f"Failed to process message: {e}")
 
-    async def get_or_create_context(self, conversation_id: str) -> ConversationContext:
+    async def get_or_create_context(self, conversation_id: str, message: Message) -> ConversationContext:
         try:
             # Try to get existing context
-            context = await self.db.get_conversation_context(conversation_id)
+            context = await self.db.get_conversation_context(message.conversation_id)
             if context:
                 return context
 
+                # Look up author based on the WhatsApp number they're messaging
+            author = await self.db.get_author_by_whatsapp(message.recipient_id)
+            if not author:
+                raise ConversationError(
+                    f"No author found for WhatsApp number: {message.recipient_id}")
+
             # Create new context if none exists
             new_context = ConversationContext(
-                id=conversation_id or str(uuid.uuid4()),
-                user_id="",  # Will be set from first message
-                author_id="",  # Will be set from configuration
+                id=message.conversation_id,
+                user_id=message.sender_id, # Will be set from first message
+                author_id=author.name,  # Will be set from configuration
                 messages=[],
                 created_at=datetime.utcnow(),
                 last_updated=datetime.utcnow(),
+                metadata={
+                    "author_whatsapp": author.whatsapp_number,
+                    "user_whatsapp": message.sender_id
+                }
             )
 
             await self.db.store_conversation(new_context)
@@ -89,6 +99,7 @@ class ConversationManager(ConversationManagerInterface):
                 content=response,
                 timestamp=datetime.utcnow(),
                 sender_id=context.author_id,
+                recipient_id=message.sender_id,
                 conversation_id=context.id,
                 message_type=MessageType.AUTHOR,
             )

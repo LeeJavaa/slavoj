@@ -92,22 +92,26 @@ def create_app() -> FastAPI:
             # Extract message details
             message_content = form_data.get("Body")
             sender_id = form_data.get("From").replace("whatsapp:", "")
+            recipient_id = form_data.get("To").replace("whatsapp:", "")
 
             # Log incoming message
             logger.info(f"Received message from {sender_id}: {message_content}")
 
             # Process incoming message
             message = await app_instance.messaging_service.process_incoming_message(
-                content=message_content, sender_id=sender_id
+                content=message_content,
+                sender_id=sender_id,
+                recipient_id=recipient_id
             )
 
             # Get response from conversation manager
             response = await app_instance.conversation_manager.process_message(message)
 
             # Send response back to user
-            await app_instance.messaging_service.send_message(
+            app_instance.messaging_service.send_message(
                 content=response,
                 recipient_id=sender_id,
+                sender_id=recipient_id,
                 conversation_id=message.conversation_id,
             )
 

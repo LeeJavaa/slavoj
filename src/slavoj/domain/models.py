@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 class MessageType(Enum):
@@ -19,10 +19,39 @@ class Message:
     content: str
     timestamp: datetime
     sender_id: str
+    recipient_id: str
     conversation_id: str
     message_type: MessageType
     metadata: Dict[str, any] = field(default_factory=dict)
 
+    @classmethod
+    def message_to_dict(cls, message: "Message") -> Dict[str, Any]:
+        """Convert Message object to dictionary for storage"""
+
+        # Sometimes the Message objects are conversions from the MongoDB
+        # document, in these cases we need to first convert the string fields
+        # into the correct type
+        timestamp = (
+            message.timestamp.isoformat()
+            if isinstance(message.timestamp, datetime)
+            else message.timestamp
+        )
+
+        message_type = (
+            message.message_type.value
+            if isinstance(message.message_type, MessageType)
+            else message.message_type
+        )
+
+        return {
+            "content": message.content,
+            "timestamp": timestamp,
+            "sender_id": message.sender_id,
+            "recipient_id": message.recipient_id,
+            "conversation_id": message.conversation_id,
+            "message_type": message_type,
+            "metadata": message.metadata,
+        }
 
 @dataclass
 class Book:
@@ -40,6 +69,7 @@ class Author:
     """Represents an author and their associated data"""
 
     name: str
+    whatsapp_number: str
     books: List[Book]
     conversation_style: Dict[str, any]
     bio: Optional[str] = None
