@@ -12,7 +12,7 @@ llm:
 
 mongodb:
   connection_string: ""
-  database: "slavoj-dev"
+  database: ""
 
 processing:
   max_concurrent_books: 5
