@@ -1,0 +1,44 @@
+{
+  "books": {
+    "The Sublime Object of Ideology": {
+      "publication_year": 1989,
+      "metadata": {
+        "publisher": "Verso",
+        "themes": ["ideology", "psychoanalysis", "Hegel"],
+        "original_language": "English"
+      }
+    },
+    "The Fragile Absolute": {
+      "publication_year": 2000,
+      "metadata": {
+        "publisher": "Verso",
+        "themes": ["absolute", "ideology", "Hegel", "psychoanalysis"],
+        "original_language": "English"
+      }
+    },
+    "Sex and the Failed Absolute": {
+      "publication_year": 2006,
+      "metadata": {
+        "publisher": "Verso",
+        "themes": ["sex", "absolute", "ideology", "psychoanalysis"],
+        "original_language": "English"
+      }
+    },
+    "Living in the End Times": {
+      "publication_year": 2010,
+      "metadata": {
+        "publisher": "Verso",
+        "themes": ["apocalypse", "capitalism", "environmental crisis", "ideology"],
+        "original_language": "English"
+      }
+    },
+    "For They Know Not What They Do": {
+      "publication_year": 2001,
+      "metadata": {
+        "publisher": "Verso",
+        "themes": ["politics", "ideology", "religion", "cultural criticism"],
+        "original_language": "English"
+      }
+    }
+  }
+}
